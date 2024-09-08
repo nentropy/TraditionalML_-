@@ -1,113 +1,97 @@
 from tensor import Tenson
 from math import sqrt, log , exp
 from random import rand, randint
+from traditionalML_🔥.base_structs import DataPoint
 
-struct DataPoint:
-var features: Tensor[DType.float32]
-var label: float32
+struct LinearRegression(Model):
+    var weights: Tensor[DType.float32]
+    var bias: Float32
 
-fn __init__(inout self, features: Tensor[DType.float32], label: Float32):
-    self.features = features
-    self.label = label
+    fn __init__(inout self, num_features: Int):
+        self.weights = Tensor[DType.float32](num_features)
+        self.bias = 0.0
 
+    fn predict(self, input: Tensor[DType.float32]) -> Float32:
+        return (self.weights * input).sum() + self.bias
 
-trait Model:
-fn predict(self, input: Tesnore[DType.float32]) -> Float32:
+    fn loss(self, prediction: Float32, actual: Float32) -> Float32:
+        return (prediction - actual) ** 2
 
-fn train(self, data: List(DataPoint), learning_rate: Float32, epochs: Int)
+    fn train(self, data: List[DataPoint], learning_rate: Float32, epochs: Int):
+        for _ in range(epochs):
+            for point in data:
+                prediction = self.predict(point.features)
+                error = prediction - point.label
+                self.weights -= learning_rate * error * point.features
+                self.bias -= learning_rate * error
 
-fn loss(self, prediction: Float32, actual: Float32) ->  Float32:
-    ....
+struct LogisticRegression(Model):
+    var weights: Tensor[DType.float32]
+    var bias: Float32
 
-    struct LinearRegression(Model):
-        var weights: Tensor[DType.float32]
-        var bias: Float32
-    
-        fn __init__(inout self, num_features: Int):
-            self.weights = Tensor[DType.float32](num_features)
-            self.bias = 0.0
-    
-        fn predict(self, input: Tensor[DType.float32]) -> Float32:
-            return (self.weights * input).sum() + self.bias
-    
-        fn loss(self, prediction: Float32, actual: Float32) -> Float32:
-            return (prediction - actual) ** 2
-    
-        fn train(self, data: List[DataPoint], learning_rate: Float32, epochs: Int):
-            for _ in range(epochs):
-                for point in data:
-                    prediction = self.predict(point.features)
-                    error = prediction - point.label
-                    self.weights -= learning_rate * error * point.features
-                    self.bias -= learning_rate * error
-    
-    struct LogisticRegression(Model):
-        var weights: Tensor[DType.float32]
-        var bias: Float32
-    
-        fn __init__(inout self, num_features: Int):
-            self.weights = Tensor[DType.float32](num_features)
-            self.bias = 0.0
-    
-        fn sigmoid(self, x: Float32) -> Float32:
-            return 1 / (1 + exp(-x))
-    
-        fn predict(self, input: Tensor[DType.float32]) -> Float32:
-            return self.sigmoid((self.weights * input).sum() + self.bias)
-    
-        fn loss(self, prediction: Float32, actual: Float32) -> Float32:
-            return -actual * log(prediction) - (1 - actual) * log(1 - prediction)
-    
-        fn train(self, data: List[DataPoint], learning_rate: Float32, epochs: Int):
-            for _ in range(epochs):
-                for point in data:
-                    prediction = self.predict(point.features)
-                    error = prediction - point.label
-                    self.weights -= learning_rate * error * point.features
-                    self.bias -= learning_rate * error
-    
-    struct KMeans:
-        var centroids: Tensor[DType.float32]
-        var num_clusters: Int
-    
-        fn __init__(inout self, num_clusters: Int, num_features: Int):
-            self.num_clusters = num_clusters
-            self.centroids = Tensor[DType.float32](num_clusters, num_features)
-    
-        fn predict(self, input: Tensor[DType.float32]) -> Int:
-            var min_distance = Float32.max
-            var closest_centroid = 0
+    fn __init__(inout self, num_features: Int):
+        self.weights = Tensor[DType.float32](num_features)
+        self.bias = 0.0
+
+    fn sigmoid(self, x: Float32) -> Float32:
+        return 1 / (1 + exp(-x))
+
+    fn predict(self, input: Tensor[DType.float32]) -> Float32:
+        return self.sigmoid((self.weights * input).sum() + self.bias)
+
+    fn loss(self, prediction: Float32, actual: Float32) -> Float32:
+        return -actual * log(prediction) - (1 - actual) * log(1 - prediction)
+
+    fn train(self, data: List[DataPoint], learning_rate: Float32, epochs: Int):
+        for _ in range(epochs):
+            for point in data:
+                prediction = self.predict(point.features)
+                error = prediction - point.label
+                self.weights -= learning_rate * error * point.features
+                self.bias -= learning_rate * error
+
+struct KMeans:
+    var centroids: Tensor[DType.float32]
+    var num_clusters: Int
+
+    fn __init__(inout self, num_clusters: Int, num_features: Int):
+        self.num_clusters = num_clusters
+        self.centroids = Tensor[DType.float32](num_clusters, num_features)
+
+    fn predict(self, input: Tensor[DType.float32]) -> Int:
+        var min_distance = Float32.max
+        var closest_centroid = 0
+        for i in range(self.num_clusters):
+            let distance = ((self.centroids[i] - input) ** 2).sum()
+            if distance < min_distance:
+                min_distance = distance
+                closest_centroid = i
+        return closest_centroid
+
+    fn train(self, data: List[Tensor[DType.float32]], max_iterations: Int):
+        # Initialize centroids randomly
+        for i in range(self.num_clusters):
+            self.centroids[i] = data[randint(0, len(data) - 1)]
+
+        for _ in range(max_iterations):
+            var new_centroids = Tensor[DType.float32](self.num_clusters, data[0].shape[0])
+            var cluster_sizes = Tensor[DType.int32](self.num_clusters)
+
+            for point in data:
+                let cluster = self.predict(point)
+                new_centroids[cluster] += point
+                cluster_sizes[cluster] += 1
+
             for i in range(self.num_clusters):
-                let distance = ((self.centroids[i] - input) ** 2).sum()
-                if distance < min_distance:
-                    min_distance = distance
-                    closest_centroid = i
-            return closest_centroid
-    
-        fn train(self, data: List[Tensor[DType.float32]], max_iterations: Int):
-            # Initialize centroids randomly
-            for i in range(self.num_clusters):
-                self.centroids[i] = data[randint(0, len(data) - 1)]
-    
-            for _ in range(max_iterations):
-                var new_centroids = Tensor[DType.float32](self.num_clusters, data[0].shape[0])
-                var cluster_sizes = Tensor[DType.int32](self.num_clusters)
-    
-                for point in data:
-                    let cluster = self.predict(point)
-                    new_centroids[cluster] += point
-                    cluster_sizes[cluster] += 1
-    
-                for i in range(self.num_clusters):
-                    if cluster_sizes[i] > 0:
-                        self.centroids[i] = new_centroids[i] / cluster_sizes[i].cast[DType.float32]()
-    
-    fn euclidean_distance(a: Tensor[DType.float32], b: Tensor[DType.float32]) -> Float32:
-        return sqrt(((a - b) ** 2).sum())
-    
-    fn normalize(data: Tensor[DType.float32]) -> Tensor[DType.float32]:
-        let min_vals = data.min(dim=0)
-        let max_vals = data.max(dim=0)
-        return (data - min_vals) / (max_vals - min_vals)
+                if cluster_sizes[i] > 0:
+                    self.centroids[i] = new_centroids[i] / cluster_sizes[i].cast[DType.float32]()
+
+fn euclidean_distance(a: Tensor[DType.float32], b: Tensor[DType.float32]) -> Float32:
+    return sqrt(((a - b) ** 2).sum())
+
+fn normalize(data: Tensor[DType.float32]) -> Tensor[DType.float32]:
+    let min_vals = data.min(dim=0)
+    let max_vals = data.max(dim=0)
+    return (data - min_vals) / (max_vals - min_vals)
 
 
