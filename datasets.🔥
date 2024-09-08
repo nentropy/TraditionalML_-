@@ -3,16 +3,26 @@ from base_structs import DataPoint import
 from collections import List
 from os.path import isdir, isfile
 
-PROJECT_NAME="tradML_mojo"
+    """
+    Load data from a JSON file and return it as a list of DataPoint objects.
 
-folder_path = "./data/train"
-let check_dir = isdir(folder_path)
-if check_dir:
-    let join_file = join(folder_path, f"train_data_{PROJECT_NAME}")
-else Exception as e:
-    print(e) 
+    Args:
+        file_path (String): The path to the JSON file containing the data.
 
+    Returns:
+        List[DataPoint]: A list of DataPoint objects parsed from the JSON file.
+
+    Raises:
+        JSONDecodeError: If the file contains invalid JSON.
+        FileNotFoundError: If the specified file does not exist.
+    """
 fn load_data(file_path: String) -> List[DataPoint]:
+    folder_path = "./data/train"
+    let check_dir = isdir(folder_path)
+    if check_dir:
+        let join_file = join(folder_path, f"train_data_{PROJECT_NAME}")
+    else Exception as e:
+        print(e) 
     let data = open(file_path)
     let data = json.load(data)
     return data
