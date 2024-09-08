@@ -1,0 +1,65 @@
+"""
+K-Means Clustering:
+
+An unsupervised learning algorithm used for partitioning a dataset into K distinct, non-overlapping subgroups (clusters).
+It aims to minimize the within-cluster sum of squares (WCSS) or inertia.
+The algorithm iteratively assigns data points to the nearest cluster centroid and updates the centroids.
+It is widely used for customer segmentation, image compression, and anomaly detection.
+
+params:
+
+n_clusters: Int32  # Number of clusters (K)
+max_iterations: Int32  # Maximum number of iterations for convergence
+X: Tensor[DType.float32]  # Input data points
+
+returns:
+
+centroids: Tensor[DType.float32]  # Coordinates of cluster centroids
+labels: Tensor[DType.int32]  # Cluster assignments for each data point
+"""
+from tensor import Tensor
+from math import sqrt, log, exp
+from random import rand, randint
+from collections import List, Dict
+
+from traditionalML_🔥.tradML_🔥.base_structs import Model, DataPoint
+
+
+struct KMeans:
+    var centroids: Tensor[DType.float32]
+    var num_clusters: Int
+
+    fn __init__(inout self, num_clusters: Int, num_features: Int):
+        self.num_clusters = num_clusters
+        self.centroids = Tensor[DType.float32](num_clusters, num_features)
+
+    fn train(self, data: List[Tensor[DType.float32]], max_iterations: Int):
+        # Initialize centroids randomly
+        for i in range(self.num_clusters):
+            self.centroids[i] = data[randint(0, len(data) - 1)]
+
+        for _ in range(max_iterations):
+            var new_centroids = Tensor[DType.float32](self.num_clusters, data[0].shape[0])
+            var cluster_sizes = Tensor[DType.int32](self.num_clusters)
+
+            for point in data:
+                let cluster = self.predict(point)
+                new_centroids[cluster] += point
+                cluster_sizes[cluster] += 1
+
+            for i in range(self.num_clusters):
+                if cluster_sizes[i] > 0:
+                    self.centroids[i] = new_centroids[i] / cluster_sizes[i].cast[DType.float32]()
+    
+    fn predict(self, input: Tensor[DType.float32]) -> Int:
+        var min_distance = Float32.max
+        var closest_centroid = 0
+        for i in range(self.num_clusters):
+            let distance = ((self.centroids[i] - input) ** 2).sum()
+            if distance < min_distance:
+                min_distance = distance
+                closest_centroid = i
+        return closest_centroid
+    
+    export Kmeans
+

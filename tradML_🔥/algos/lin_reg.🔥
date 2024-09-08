@@ -1,0 +1,43 @@
+"""
+Linear Regression:
+- A simple algorithm for predicting a continuous output variable based on one or more input features.
+- It is a fundamental algorithm in statistics and machine learning.
+- It is used for solving regression problems, where the goal is to predict a continuous numerical value.
+
+params:
+- weights: Tensor[DType.float32]
+- bias: Float32
+
+returns:
+- prediction: Float32
+"""
+from tensor import Tensor
+from math import sqrt, log, exp
+from random import rand, randint
+from collections import List, Dict
+
+from traditionalML_🔥.tradML_🔥.base_structs import Model, DataPoint
+
+struct LinearRegression(Model):
+    var weights: Tensor[DType.float32]
+    var bias: Float32
+
+    fn __init__(inout self, num_features: Int):
+        self.weights = Tensor[DType.float32](num_features)
+        self.bias = 0.0
+
+    fn predict(self, input: Tensor[DType.float32]) -> Float32:
+        return (self.weights * input).sum() + self.bias
+
+    fn loss(self, prediction: Float32, actual: Float32) -> Float32:
+        return (prediction - actual) ** 2
+
+    fn train(self, data: List[DataPoint], learning_rate: Float32, epochs: Int):
+        for _ in range(epochs):
+            for point in data:
+                prediction = self.predict(point.features)
+                error = prediction - point.label
+                self.weights -= learning_rate * error * point.features
+                self.bias -= learning_rate * error
+
+    export LinearRegression

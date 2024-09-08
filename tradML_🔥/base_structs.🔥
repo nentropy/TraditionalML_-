@@ -1,0 +1,42 @@
+from tensor import Tensor;
+from math import sqrt, log, exp;
+from random import rand, randint;
+from collections import List, Dict
+
+"""
+This module defines the base structures and interfaces for traditional machine learning models.
+
+It includes:
+- DataPoint: A struct representing a single data point with features and a label.
+- Model: A trait defining the interface for machine learning models.
+
+These structures provide a foundation for implementing various machine learning algorithms
+in a consistent manner.
+"""
+struct DataPoint:
+    var features: Tensor[DType.float32]
+    var label: float32
+    
+    fn __init__(inout self, features: Tensor[DType.float32], label: Float32):
+        self.features = features
+        self.labels = label
+
+trait Model:
+    fn predict(self, input: Tensor[DType.float32]) -> Float32:
+        ...
+
+    fn train_model(self, data:List[DataPoint], learning_rate: Float32, epochs: Int):
+        ...
+
+    fn_loss(self, prediction: Float32, actual: Float32) -> Float32:
+        ...
+
+    # @TODO Explore the difference between structs and traits in Mojo
+    # Understand the implementation and realistic use cases.
+
+    export DataPoint
+
+
+
+
+

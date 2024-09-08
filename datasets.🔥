@@ -1,0 +1,18 @@
+import json
+from base_structs import DataPoint import
+from collections import List
+from os.path import isdir, isfile
+
+PROJECT_NAME="tradML_mojo"
+
+folder_path = "./data/train"
+let check_dir = isdir(folder_path)
+if check_dir:
+    let join_file = join(folder_path, f"train_data_{PROJECT_NAME}")
+else Exception as e:
+    print(e) 
+
+fn load_data(file_path: String) -> List[DataPoint]:
+    let data = open(file_path)
+    let data = json.load(data)
+    return data

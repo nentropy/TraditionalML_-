@@ -1,0 +1,53 @@
+"""
+Logistic Regression:
+
+A statistical method for predicting a binary outcome based on one or more input features.
+It is widely used for classification problems in machine learning and statistics.
+The algorithm estimates the probability of an instance belonging to a particular class.
+It uses the logistic function (sigmoid) to map predictions to probabilities between 0 and 1.
+
+params:
+
+weights: Tensor[DType.float32]  # Coefficients for each input feature
+bias: Float32  # Intercept term
+X: Tensor[DType.float32]  # Input features
+
+returns:
+
+probabilities: Tensor[DType.float32]  # Probability of belonging to the positive class
+"""
+from tensor import Tensor
+from math import sqrt, log, exp
+from random import rand, randint
+from collections import List, Dict
+
+from traditionalML_🔥.tradML_🔥.base_structs import Model, DataPoint
+
+struct LogisticRegression(Model):
+    var weights: Tensor[DType.float32]
+    var bias: Float32
+
+    fn __init__(inout self, num_features: Int):
+        self.weights = Tensor[DType.float32](num_features)
+        self.bias = 0.0
+
+    fn sigmoid(self, x: Float32) -> Float32:
+        return 1 / (1 + exp(-x))
+
+    fn predict(self, input: Tensor[DType.float32]) -> Float32:
+        return self.sigmoid((self.weights * input).sum() + self.bias)
+    
+    fn train_model(self, data: List[DataPoint], learning_rate: Float32, epochs: Int):
+        for _ in range(epochs):
+            for point in data:
+                prediction = self.predict(point.features)
+                error = prediction - point.label
+                self.weights -= learning_rate * error * point.features
+                self.bias -= learning_rate * error
+
+
+    fn loss(self, prediction: Float32, actual: Float32) -> Float32:
+        return -actual * log(prediction) - (1 - actual) * log(1 - prediction)
+
+    
+    export LogisticRegression

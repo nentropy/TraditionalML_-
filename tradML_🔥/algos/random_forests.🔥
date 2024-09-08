@@ -1,0 +1,27 @@
+"""
+Random Forests:
+
+An ensemble learning method that constructs multiple decision trees and merges them to get a more accurate and stable prediction.
+It uses bagging (bootstrap aggregating) to create subsets of the training data for each tree.
+Random feature selection is employed at each split to decorrelate the trees.
+It is robust to overfitting and can handle high-dimensional data.
+
+params:
+
+n_estimators: Int32  # Number of trees in the forest
+max_depth: Int32  # Maximum depth of each tree
+min_samples_split: Int32  # Minimum number of samples required to split an internal node
+criterion: String  # Function to measure the quality of a split
+bootstrap: Boolean  # Whether to use bootstrap samples
+
+returns:
+
+forest: Object  # The trained random forest model
+feature_importances: Tensor[DType.float32]  # Aggregated importance of each feature across all trees
+"""
+from tensor import Tensor
+from math import sqrt, log, exp
+from random import rand, randint
+from typing import List
+
+from traditionalML_🔥.tradML_🔥.base_structs import Model, DataPoint
