@@ -31,4 +31,5 @@ fn load_data(file_path: String) -> List[DataPoint]:
         print(e) 
     let data = open(file_path)
     let data = json.load(data)
+    
     return data
